@@ -42,7 +42,7 @@ const server = http.createServer((req, res) => {
           res.end('DB 오류: ' + err.message);
         } else {
           res.writeHead(200, { 'Content-Type': 'text/plain' });
-          res.end('저장 성공! ID: ' + results.insertId);
+          res.end('Save success! ID: ' + results.insertId);
         }
       });
     });
