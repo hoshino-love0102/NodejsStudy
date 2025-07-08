@@ -12,3 +12,7 @@ app.get('/a', function(req, res) {
 app.get('/b', function(req, res){
   res.send('this is b');
 });
+
+app.get('/', function(req, res){
+    res.sendFile(__dirname + 'html.html')
+});
