@@ -18,7 +18,7 @@ const server = http.createServer((req, res) => {
     fs.readFile(filePath, (err, data) => {
       if (err) {
         res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('서버 오류');
+        res.end('Server error');
       } else {
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end(data);
@@ -39,7 +39,7 @@ const server = http.createServer((req, res) => {
       connection.query(sql, [name, email], (err, results) => {
         if (err) {
           res.writeHead(500, { 'Content-Type': 'text/plain' });
-          res.end('DB 오류: ' + err.message);
+          res.end('DB error: ' + err.message);
         } else {
           res.writeHead(200, { 'Content-Type': 'text/plain' });
           res.end('Save success! ID: ' + results.insertId);
@@ -48,10 +48,10 @@ const server = http.createServer((req, res) => {
     });
   } else {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end('페이지 없음');
+    res.end('Page not found');
   }
 });
 
 server.listen(3000, () => {
-  console.log('서버 실행 중! http://localhost:3000');
+  console.log('Server running at http://localhost:3000');
 });

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>사용자 목록</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 5px 0; }
+    a { display: inline-block; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>사용자 목록</h1>
+  <ul id="userList"></ul>
+  <a href="/">돌아가기</a>
+
+  <script>
+    fetch('/api/users')
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('userList');
+        data.forEach(row => {
+          const li = document.createElement('li');
+          li.textContent = `${row.id} - ${row.name} - ${row.email}`;
+          list.appendChild(li);
+        });
+      })
+      .catch(err => {
+        document.body.innerHTML += `<p>에러: ${err.message}</p>`;
+        console.error(err);
+      });
+  </script>
+</body>
+</html>

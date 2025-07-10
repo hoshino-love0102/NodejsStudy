@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>사용자 등록</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input {
+      padding: 5px;
+      width: 200px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 5px 10px;
+    }
+    a {
+      display: inline-block;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>사용자 등록</h1>
+  <form action="/save" method="POST">
+    <label>이름:
+      <input type="text" name="name" required />
+    </label>
+    <label>이메일:
+      <input type="email" name="email" required />
+    </label>
+    <button type="submit">저장</button>
+  </form>
+
+  <a href="/list">사용자 목록 보기</a>
+</body>
+</html>
