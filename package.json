@@ -10,7 +10,18 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "mysql2": "^3.14.1"
-  }
+    "mysql2": "^3.14.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hoshino-love0102/NodejsStudy.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/hoshino-love0102/NodejsStudy/issues"
+  },
+  "homepage": "https://github.com/hoshino-love0102/NodejsStudy#readme"
 }
