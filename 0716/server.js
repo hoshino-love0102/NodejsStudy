@@ -5,12 +5,12 @@ const mysql = require('mysql2');
 const querystring = require('querystring');
 const bcrypt = require('bcrypt');
 
-// DB 연결 (직접 값 입력)
+// DB 연결
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '12345678',   // ✅ 직접 비밀번호 넣음
-  database: 'savedb'      // ✅ DB 이름 직접 지정
+  password: '12345678', // 직접 비밀번호 넣음
+  database: 'savedb' // DB 이름 직접 지정
 });
 
 // DB 연결 확인
