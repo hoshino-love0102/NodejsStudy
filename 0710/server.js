@@ -14,7 +14,6 @@ const connection = mysql.createConnection({
 
 const server = http.createServer((req, res) => {
   if (req.method === 'GET' && req.url === '/') {
-    // 회원가입 폼
     const filePath = path.join(__dirname, 'index.html');
     fs.readFile(filePath, (err, data) => {
       if (err) {
@@ -27,28 +26,30 @@ const server = http.createServer((req, res) => {
     });
 
   } else if (req.method === 'POST' && req.url === '/save') {
-    // 회원가입 처리
     let body = '';
-    req.on('data', chunk => body += chunk.toString());
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
 
     req.on('end', () => {
-      const { name, email } = querystring.parse(body);
+      const { name, email, password } = querystring.parse(body);
 
-      const sql = 'INSERT INTO users (name, email) VALUES (?, ?)';
-      connection.query(sql, [name, email], (err) => {
+      const sql = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
+      connection.query(sql, [name, email, password], (err) => {
         if (err) {
           res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
           res.end('DB error: ' + err.message);
         } else {
-          // 가입 완료
           res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
           res.end(`
             <!DOCTYPE html>
-            <html lang="ko"><head><meta charset="UTF-8"><title>가입 완료</title></head>
-            <body>
-              <h1>회원가입이 완료되었습니다!</h1>
-              <a href="/">처음으로 돌아가기</a>
-            </body></html>
+            <html lang="ko">
+              <head><meta charset="UTF-8"><title>가입 완료</title></head>
+              <body>
+                <h1>회원가입이 완료되었습니다!</h1>
+                <a href="/">처음으로 돌아가기</a>
+              </body>
+            </html>
           `);
         }
       });
