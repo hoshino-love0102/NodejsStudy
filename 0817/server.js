@@ -22,20 +22,7 @@ connection.connect(err => {
 
 const server = http.createServer((req, res) => {
 
-  if (req.method === 'GET' && req.url.endsWith('.css')) {
-    const filePath = path.join(__dirname, req.url);
-    fs.readFile(filePath, (err, data) => {
-      if (err) {
-        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-        res.end('CSS 파일을 찾을 수 없습니다.');
-      } else {
-        res.writeHead(200, { 'Content-Type': 'text/css; charset=utf-8' });
-        res.end(data);
-      }
-    });
-    return;
-  }
-
+  // 메인 페이지
   if (req.method === 'GET' && req.url === '/') {
     const filePath = path.join(__dirname, 'index.html');
     fs.readFile(filePath, (err, data) => {
@@ -48,6 +35,7 @@ const server = http.createServer((req, res) => {
       }
     });
 
+  // 회원가입 처리
   } else if (req.method === 'POST' && req.url === '/save') {
     let body = '';
     req.on('data', chunk => {
@@ -82,10 +70,59 @@ const server = http.createServer((req, res) => {
                 <head><meta charset="UTF-8"><title>가입 완료</title></head>
                 <body>
                   <h1>회원가입이 완료되었습니다!</h1>
-                  <a href="/">처음으로 돌아가기</a>
+                  <a href="/">로그인 페이지로 돌아가기</a>
                 </body>
               </html>
             `);
+          }
+        });
+      });
+    });
+
+  // 로그인 처리
+  } else if (req.method === 'POST' && req.url === '/login') {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+
+    req.on('end', () => {
+      const { email, password } = querystring.parse(body);
+
+      if (!email || !password) {
+        res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+        return res.end('이메일/비밀번호를 입력하세요.');
+      }
+
+      const sql = 'SELECT * FROM users WHERE email = ?';
+      connection.query(sql, [email], (err, results) => {
+        if (err) {
+          res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+          return res.end('DB error: ' + err.message);
+        }
+
+        if (results.length === 0) {
+          res.writeHead(401, { 'Content-Type': 'text/plain; charset=utf-8' });
+          return res.end('등록되지 않은 이메일입니다.');
+        }
+
+        const user = results[0];
+        bcrypt.compare(password, user.password, (err, same) => {
+          if (same) {
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            res.end(`
+              <!DOCTYPE html>
+              <html lang="ko">
+                <head><meta charset="UTF-8"><title>로그인 성공</title></head>
+                <body>
+                  <h1>${user.name}님, 환영합니다!</h1>
+                  <a href="/">홈으로</a>
+                </body>
+              </html>
+            `);
+          } else {
+            res.writeHead(401, { 'Content-Type': 'text/plain; charset=utf-8' });
+            res.end('비밀번호가 일치하지 않습니다.');
           }
         });
       });
