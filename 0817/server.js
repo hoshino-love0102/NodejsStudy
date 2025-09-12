@@ -60,9 +60,11 @@ const server = http.createServer((req, res) => {
         const sql = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
         connection.query(sql, [name, email, hash], (err) => {
           if (err) {
+            console.error(`[SIGNUP FAIL] email: ${email}, DB error: ${err.message}`);
             res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
             res.end('DB error: ' + err.message);
           } else {
+            console.log(`[SIGNUP SUCCESS] email: ${email}, name: ${name}`);
             res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
             res.end(`
               <!DOCTYPE html>
@@ -97,11 +99,13 @@ const server = http.createServer((req, res) => {
       const sql = 'SELECT * FROM users WHERE email = ?';
       connection.query(sql, [email], (err, results) => {
         if (err) {
+          console.error(`[LOGIN ERROR] email: ${email}, DB error: ${err.message}`);
           res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
           return res.end('DB error: ' + err.message);
         }
 
         if (results.length === 0) {
+          console.warn(`[LOGIN FAIL] email: ${email}, reason: 등록되지 않은 이메일`);
           res.writeHead(401, { 'Content-Type': 'text/plain; charset=utf-8' });
           return res.end('등록되지 않은 이메일입니다.');
         }
@@ -109,6 +113,7 @@ const server = http.createServer((req, res) => {
         const user = results[0];
         bcrypt.compare(password, user.password, (err, same) => {
           if (same) {
+            console.log(`[LOGIN SUCCESS] email: ${user.email}, name: ${user.name}`);
             res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
             res.end(`
               <!DOCTYPE html>
@@ -121,6 +126,7 @@ const server = http.createServer((req, res) => {
               </html>
             `);
           } else {
+            console.warn(`[LOGIN FAIL] email: ${email}, reason: 비밀번호 불일치`);
             res.writeHead(401, { 'Content-Type': 'text/plain; charset=utf-8' });
             res.end('비밀번호가 일치하지 않습니다.');
           }
