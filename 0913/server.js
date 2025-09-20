@@ -4,19 +4,17 @@ const dotenv = require('dotenv');
 const envPath = path.join(__dirname, '../.env');
 dotenv.config({ path: envPath });
 
-// 키 없으면 중단
-if (!process.env.API_KEY) {
-  console.error('API_KEY를 읽을 수 없음');
+if (!process.env.NEWS_KEY) {
+  console.error('NEWS_KEY를 읽을 수 없음');
   process.exit(1);
 }
 
-const API_KEY = process.env.API_KEY;
+const NEWS_KEY = process.env.NEWS_KEY;
 
 async function getNews() {
   try {
-    // 한국 키워드로 뉴스 5개 가져오기
     const res = await fetch(
-      `https://newsapi.org/v2/everything?q=한국&pageSize=5&sortBy=publishedAt&language=ko&apiKey=${API_KEY}`
+      `https://newsapi.org/v2/everything?q=한국&pageSize=5&sortBy=publishedAt&language=ko&apiKey=${NEWS_KEY}`
     );
     const data = await res.json();
 
