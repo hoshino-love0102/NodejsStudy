@@ -10,6 +10,38 @@ if (!TOKEN) {
   process.exit(1);
 }
 
+// stats 계산 활동한 일 수, 최대 연속 잔디, 최다 커밋일
+function computeStats(days) {
+  let activeDays = 0;
+
+  let maxCount = -1;
+  let maxDay = null;
+
+  let currentRun = 0;
+  let maxStreak = 0;
+
+  for (const d of days) {
+    const c = Number(d.contributionCount) || 0;
+
+    if (c > 0) activeDays += 1;
+
+    if (c > maxCount) {
+      maxCount = c;
+      maxDay = { date: d.date, count: c };
+    }
+
+    if (c > 0) {
+      currentRun += 1;
+      if (currentRun > maxStreak) maxStreak = currentRun;
+    } else {
+      currentRun = 0;
+    }
+  }
+  if (maxCount <= 0) maxDay = null;
+
+  return { activeDays, maxStreak, maxDay };
+}
+
 async function fetchContributionCalendar(username, year) {
   const from = new Date(Date.UTC(year, 0, 1, 0, 0, 0)).toISOString();
   const to = new Date(Date.UTC(year, 11, 31, 23, 59, 59)).toISOString();
@@ -46,16 +78,27 @@ async function fetchContributionCalendar(username, year) {
   });
 
   const json = await res.json();
+
   if (!res.ok || json.errors) {
-    const msg = json.errors?.map((e) => e.message).join(" | ") || `HTTP ${res.status}`;
+    const msg =
+      json.errors?.map((e) => e.message).join(" | ") || `HTTP ${res.status}`;
     throw new Error(msg);
   }
+
   if (!json.data?.user) throw new Error("유저를 찾을 수 없음 (username 확인)");
 
   const cal = json.data.user.contributionsCollection.contributionCalendar;
   const days = cal.weeks.flatMap((w) => w.contributionDays);
 
-  return { username, year, total: cal.totalContributions, days };
+  const stats = computeStats(days);
+
+  return {
+    username,
+    year,
+    total: cal.totalContributions,
+    stats,
+    days,
+  };
 }
 
 const server = http.createServer(async (req, res) => {
@@ -69,16 +112,24 @@ const server = http.createServer(async (req, res) => {
 
     if (url.pathname === "/grass") {
       const username = url.searchParams.get("u");
-      const yearStr = url.searchParams.get("year") || String(new Date().getUTCFullYear());
+      const yearStr =
+        url.searchParams.get("year") || String(new Date().getUTCFullYear());
       const year = Number(yearStr);
 
       if (!username) {
         res.writeHead(400, { "Content-Type": "application/json" });
-        return res.end(JSON.stringify({ error: "query param u 필요. 예: /grass?u=octocat" }));
+        return res.end(
+          JSON.stringify({ error: "query param u 필요. 예: /grass?u=octocat" })
+        );
       }
+
       if (!Number.isInteger(year) || year < 2008 || year > 2100) {
         res.writeHead(400, { "Content-Type": "application/json" });
-        return res.end(JSON.stringify({ error: "year가 이상함. 예: /grass?u=octocat&year=2025" }));
+        return res.end(
+          JSON.stringify({
+            error: "year가 이상함. 예: /grass?u=octocat&year=2025",
+          })
+        );
       }
 
       const data = await fetchContributionCalendar(username, year);
