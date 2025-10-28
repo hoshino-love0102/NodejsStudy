@@ -3,10 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>유튜브 인기 노래 (KR)</title>
+  <title>유튜브 인기 노래</title>
 </head>
 <body>
-  <h2>유튜브 인기 노래 (한국)</h2>
+  <h2>유튜브 인기 노래</h2>
+
+  <label for="region">국가:</label>
+  <select id="region">
+    <option value="KR" selected>한국 (KR)</option>
+    <option value="US">미국 (US)</option>
+    <option value="JP">일본 (JP)</option>
+  </select>
 
   <button id="reload">불러오기</button>
   <span id="status"></span>
@@ -18,6 +25,7 @@
   <script>
     const listEl = document.getElementById("list");
     const statusEl = document.getElementById("status");
+    const regionEl = document.getElementById("region");
 
     function fmt(n) {
       if (!Number.isFinite(n)) return "-";
@@ -31,16 +39,18 @@
     }
 
     async function load() {
-      statusEl.textContent = "불러오는중임";
+      const regionCode = regionEl.value;
+
+      statusEl.textContent = "불러오는중임...";
       listEl.innerHTML = "";
 
       try {
-        const r = await fetch(`/api/trending?maxResults=12`);
+        const r = await fetch(`/api/trending?regionCode=${encodeURIComponent(regionCode)}&maxResults=12`);
         const data = await r.json();
-        if (!r.ok) throw new Error(data?.detail || "API error");
+        if (!r.ok) throw new Error(data?.detail || data?.error || "API error");
 
         const items = data.items || [];
-        statusEl.textContent = `총 ${items.length}개`;
+        statusEl.textContent = `${data.regionCode} 총 ${items.length}개`;
 
         const ul = document.createElement("ul");
 
@@ -68,6 +78,8 @@
     }
 
     document.getElementById("reload").addEventListener("click", load);
+    regionEl.addEventListener("change", load);
+
     load();
   </script>
 </body>
