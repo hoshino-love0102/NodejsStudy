@@ -21,17 +21,25 @@ if (!YT_KEY) {
 
 app.use(express.static(__dirname));
 
+const ALLOWED_REGIONS = new Set(["KR", "US", "JP"]);
+
 app.get("/api/trending", async (req, res) => {
   try {
-    const maxResults = String(
-      Math.min(Number(req.query.maxResults || 12), 50)
-    );
+    const regionCode = String(req.query.regionCode || "KR").toUpperCase();
+    if (!ALLOWED_REGIONS.has(regionCode)) {
+      return res.status(400).json({
+        error: "invalid_regionCode",
+        allowed: Array.from(ALLOWED_REGIONS),
+      });
+    }
+
+    const maxResults = String(Math.min(Number(req.query.maxResults || 12), 50));
 
     const params = new URLSearchParams({
       key: YT_KEY,
       part: "snippet,statistics",
       chart: "mostPopular",
-      regionCode: "KR",
+      regionCode,
       videoCategoryId: "10",
       maxResults,
     });
@@ -39,10 +47,7 @@ app.get("/api/trending", async (req, res) => {
     const r = await fetch(`${BASE}/videos?${params}`);
     if (!r.ok) {
       const detail = await r.text();
-      return res.status(500).json({
-        error: "youtube_api_error",
-        detail,
-      });
+      return res.status(500).json({ error: "youtube_api_error", detail });
     }
 
     const data = await r.json();
@@ -62,12 +67,9 @@ app.get("/api/trending", async (req, res) => {
     }));
 
     res.setHeader("Content-Type", "application/json; charset=utf-8");
-    res.end(JSON.stringify({ items }, null, 2));
+    res.end(JSON.stringify({ regionCode, items }, null, 2));
   } catch (e) {
-    res.status(500).json({
-      error: "server_error",
-      detail: String(e),
-    });
+    res.status(500).json({ error: "server_error", detail: String(e) });
   }
 });
 
