@@ -59,14 +59,14 @@
           const li = document.createElement("li");
 
           li.innerHTML = `
-            <a href="${v.url}" target="_blank" rel="noreferrer">
-              ${escapeHtml(v.title || "")}
-            </a>
-            <div>
-              채널: ${escapeHtml(v.channelTitle || "")}
-              | 조회수: ${fmt(v.viewCount)}
-              | 좋아요: ${fmt(v.likeCount)}
-            </div>
+          <a href="${v.url}" target="_blank" rel="noreferrer">
+            <img class="thumb" src="${v.thumb}" alt="thumbnail" />
+            <span class="title">${escapeHtml(v.title || "")}</span>
+          </a>
+          <div class="meta">
+            채널: ${escapeHtml(v.channelTitle || "")}<br />
+            조회수: ${fmt(v.viewCount)} · 좋아요: ${fmt(v.likeCount)}
+          </div>
           `;
 
           ul.appendChild(li);
